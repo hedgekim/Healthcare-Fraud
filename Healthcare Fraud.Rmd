@@ -224,8 +224,9 @@ inpatient %>%
 
 ```{r}
 
-
-
+write.csv(inpatient, file='inpatient.csv', row.names=F)
+write.csv(outpatient, file='outpatient.csv', row.names=F)
+write.csv(bene, file='bene.csv', row.names=F)
 
 ```
 
