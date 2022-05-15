@@ -1,0 +1,231 @@
+---
+title: "Healthcare Fraud"
+output: html_document
+date: '2022-05-13'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+
+inpatient = read.csv('Train_Inpatientdata-1542865627584.csv')
+outpatient = read.csv('Train_Outpatientdata-1542865627584.csv')
+bene = read.csv('Train_Beneficiarydata-1542865627584.csv')
+provider_potential = read.csv('Train-1542865627584.csv')
+
+```
+
+
+
+```{r}
+
+table(bene$ChronicCond_stroke) #1 is TRUE, 2 is FALSE
+length(unique(inpatient$AttendingPhysician)) #11605
+length(unique(outpatient$AttendingPhysician)) #74110
+
+length(unique(inpatient$BeneID)) #31289
+length(unique(outpatient$BeneID)) #133980
+
+#update chronic condition values from 2 (not true) to 0
+bene[, 11:21][bene[, 11:21] == 2] = 0
+
+#update RenalDiseaseIndicator values from Y to 1's
+bene['RenalDiseaseIndicator'][bene['RenalDiseaseIndicator']=='Y'] = 1
+
+#add a column that adds up total chronic conditions per patient
+bene = bene %>%
+  mutate(total_chronic = rowSums(.[11:21]))
+
+Total_Chronic = bene %>% 
+  select(BeneID, total_chronic)
+
+#add total chronic counts columns to both claims tables
+inpatient = left_join(inpatient, Total_Chronic, by="BeneID")
+outpatient = left_join(outpatient, Total_Chronic, by="BeneID")
+
+```
+
+
+```{r}
+
+#add total dob to both claims tables
+birth = bene %>% 
+  select(BeneID, DOB)
+
+inpatient = left_join(inpatient, birth, by="BeneID")
+outpatient = left_join(outpatient, birth, by="BeneID")
+
+#add potential provider fraud flag
+inpatient = left_join(inpatient, provider_potential, by="Provider")
+outpatient = left_join(outpatient, provider_potential, by="Provider")
+
+
+```
+
+```{r}
+
+
+pf = table(provider_potential$PotentialFraud)
+
+prop.table(pf)
+#potential fraud providers only make up 9% of the distribution
+
+inpatient %>%
+  group_by(PotentialFraud) %>%
+  summarise(count = n()) %>%
+  mutate(count/sum(count))
+
+outpatient %>%
+  group_by(PotentialFraud) %>%
+  summarise(count = n()) %>%
+  mutate(count/sum(count))
+
+#but the distribution of claims made by potential fraud providers make up much larger percentage
+
+# p = c(0.90647, 0.09353)
+# ic = c(0.4218, 0.5782)
+# oc = c(0.63419, 0.36581)
+# f = c("not fraud", "fraud")
+# provider_dist = data.frame(f, p, ic, oc)
+# provider_dist
+#  rownames(provider_dist) = c('not fraud', 'fraud')
+
+
+type = c("provider", "provider", "ic", "ic", "oc", "oc")
+perc = c(0.90647, 0.09353, 0.4218, 0.5782, 0.63419, 0.36581)
+f = c("not fraud", "fraud", "not fraud", "fraud","not fraud", "fraud")
+provider_dist = data.frame(f, type, perc)
+provider_dist
+
+inpatient %>%
+  distinct(BeneID, .keep_all = TRUE) %>%
+  group_by(PotentialFraud) %>%
+  summarise(count=n())
+#potential fraud providers have more unique patients, higher claim amounts... are these hospitals larger?
+
+inpatient %>%
+  distinct(AttendingPhysician, .keep_all = TRUE) %>%
+  group_by(PotentialFraud) %>%
+  summarise(count=n())
+#potential fraud providers have less doctors
+
+outpatient %>%
+  distinct(BeneID, .keep_all = TRUE) %>%
+  group_by(PotentialFraud) %>%
+  summarise(count=n())
+
+outpatient %>%
+  distinct(AttendingPhysician, .keep_all = TRUE) %>%
+  group_by(PotentialFraud) %>%
+  summarise(count=n())
+
+
+ggplot(provider_dist, aes(x = type, y = perc, fill = f)) +
+  geom_col(position = "dodge")
+```
+
+```{r}
+
+inpatient %>%
+  distinct(BeneID, .keep_all = TRUE) %>%
+  group_by(PotentialFraud) %>%
+  summarise(mean(total_chronic))
+#avg chronic conditions of inpatient 5.2053	
+
+outpatient %>%
+  distinct(BeneID, .keep_all = TRUE) %>%
+  group_by(PotentialFraud) %>%
+  summarise(mean(total_chronic))
+#avg chronic conditions of inpatient 3.7261	
+
+
+```
+
+
+```{r}
+length(unique(inpatient$Provider)) # 2092
+length(unique(outpatient$Provider)) # 5012
+length(intersect(inpatient$Provider, outpatient$Provider))
+# 1,694 providers that do both
+
+```
+```{r}
+
+length(intersect(inpatient$BeneID, outpatient$BeneID))
+# 27,713 patients that receive both inpatient and outpatient
+```
+
+```{r}
+
+head(inpatient)
+
+inpatient$DOB = as.Date(inpatient$DOB, format = "%Y-%m-%d")
+inpatient$ClaimStartDt = as.Date(inpatient$ClaimStartDt, format = "%Y-%m-%d")
+
+inpatient = inpatient %>%
+  mutate(Age = round(time_length(difftime(ClaimStartDt, DOB), "years")))
+
+outpatient$DOB = as.Date(outpatient$DOB, format = "%Y-%m-%d")
+outpatient$ClaimStartDt = as.Date(outpatient$ClaimStartDt, format = "%Y-%m-%d")
+
+outpatient = outpatient %>%
+  mutate(Age = round(time_length(difftime(ClaimStartDt, DOB), "years")))
+
+outpatient
+
+```
+```{r}
+
+bene$Gender = factor(bene$Gender)
+ggplot(data = bene, aes(x=total_chronic, color=Gender)) + geom_histogram(binwidth=1, fill="white", position="identity", alpha=.5)
+
+#distribution of num of total chronic conditions by gender
+```
+
+
+```{r}
+colSums(bene[, 11:21])
+
+#top chronic conditions
+head(inpatient)
+```
+
+```{r}
+
+inpatient$DischargeDt = as.Date(inpatient$DischargeDt, format = "%Y-%m-%d")
+inpatient$AdmissionDt = as.Date(inpatient$AdmissionDt, format = "%Y-%m-%d")
+
+inpatient = inpatient %>%
+  mutate(days_admitted = DischargeDt - AdmissionDt)
+
+ggplot(data=inpatient, aes(x = days_admitted, colour = PotentialFraud)) +
+  geom_density()
+
+ggplot(data=inpatient, aes(x = InscClaimAmtReimbursed, colour = PotentialFraud)) +
+  geom_density()
+
+
+inpatent
+
+```
+
+```{r}
+
+inpatient %>%
+  select(ClmDiagnosisCode_1, ClmDiagnosisCode_2, ClmDiagnosisCode_3, ClmDiagnosisCode_4) %>%
+  group_by_all()%>%count()%>%filter(n>1) %>%
+  arrange(ClmDiagnosisCode_1)
+
+```
+
+```{r}
+
+
+
+
+```
+
