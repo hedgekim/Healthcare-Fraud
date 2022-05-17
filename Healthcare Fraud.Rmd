@@ -228,5 +228,60 @@ write.csv(inpatient, file='inpatient.csv', row.names=F)
 write.csv(outpatient, file='outpatient.csv', row.names=F)
 write.csv(bene, file='bene.csv', row.names=F)
 
+
+```
+
+
+
+
+```{r}
+
+days_admitted_age = read.csv('days_admitted_age.csv')
+inpatient_pd = read.csv('inpatient_pd.csv')
+
+```
+
+
+```{r}
+
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, fill=PotentialFraud)) + geom_bar(position = "dodge", stat="identity")
+
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_point()
+
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_line()
+
+
+```
+
+
+```{r}
+head(inpatient_pd)
+
+```
+```{r}
+
+inpatient_pd %>%
+  group_by(Age, PotentialFraud) %>%
+  summarise(Mean = mean(Claim_Diag_Total)) %>%
+  ggplot(aes(x=Age, y=Mean, color=PotentialFraud)) + geom_point()
+
+inpatient_pd %>%
+  group_by(Age, PotentialFraud) %>%
+  summarise(Mean = mean(Claim_Procedure_Total)) %>%
+  ggplot(aes(x=Age, y=Mean, color=PotentialFraud)) + geom_point()
+
+inpatient_pd %>%
+  group_by(Age, PotentialFraud) %>%
+  summarise(Mean = mean(Total_Claims_Amount,na.rm=TRUE)) %>%
+  ggplot(aes(x=Age, y=Mean, color=PotentialFraud)) + geom_point() + labs(title="Avg Claim Amount Across Age",
+        x ='Age', y = 'Avg Claim Amount')
+
+
+```
+
+```{r}
+
+
+
 ```
 
