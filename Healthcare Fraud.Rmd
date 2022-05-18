@@ -245,6 +245,11 @@ inpatient_pd = read.csv('inpatient_pd.csv')
 
 
 ```{r}
+days_admitted_age
+```
+
+
+```{r}
 
 ggplot(data=days_admitted_age, aes(x=Age, y=Mean, fill=PotentialFraud)) + geom_bar(position = "dodge", stat="identity") + labs(x = "\n Age", y=" Avg Number of Days Admitted\n", fill="Provider Flag")
 
