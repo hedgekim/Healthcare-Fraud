@@ -95,9 +95,9 @@ outpatient %>%
 #  rownames(provider_dist) = c('not fraud', 'fraud')
 
 
-type = c("provider", "provider", "ic", "ic", "oc", "oc")
+type = c("provider", "provider", "Inpatient Claims", "Inpatient Claims", "Outpatient Claims", "Outpatient Claims")
 perc = c(0.90647, 0.09353, 0.4218, 0.5782, 0.63419, 0.36581)
-f = c("not fraud", "fraud", "not fraud", "fraud","not fraud", "fraud")
+f = c("Not Fraud", "Fraud", "Not Fraud", "Fraud","Not Fraud", "Fraud")
 provider_dist = data.frame(f, type, perc)
 provider_dist
 
@@ -125,7 +125,9 @@ outpatient %>%
 
 
 ggplot(provider_dist, aes(x = type, y = perc, fill = f)) +
-  geom_col(position = "dodge")
+  geom_col(position = "dodge") + labs(x = "\n", y="Percent Distribution\n", fill="Provider Flag")
+
+head(provider_dist)
 ```
 
 ```{r}
@@ -181,7 +183,7 @@ outpatient
 ```{r}
 
 bene$Gender = factor(bene$Gender)
-ggplot(data = bene, aes(x=total_chronic, color=Gender)) + geom_histogram(binwidth=1, fill="white", position="identity", alpha=.5)
+ggplot(data = bene, aes(x=total_chronic, color=Gender)) + geom_histogram(binwidth=1, fill="white", position="identity", alpha=.5) + labs(x = "\n Number of Chronic Illness", y=" Count\n", fill="Gender")
 
 #distribution of num of total chronic conditions by gender
 ```
@@ -235,7 +237,7 @@ write.csv(bene, file='bene.csv', row.names=F)
 
 
 ```{r}
-
+#table manipulated from jupyter notebook
 days_admitted_age = read.csv('days_admitted_age.csv')
 inpatient_pd = read.csv('inpatient_pd.csv')
 
@@ -244,11 +246,11 @@ inpatient_pd = read.csv('inpatient_pd.csv')
 
 ```{r}
 
-ggplot(data=days_admitted_age, aes(x=Age, y=Mean, fill=PotentialFraud)) + geom_bar(position = "dodge", stat="identity")
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, fill=PotentialFraud)) + geom_bar(position = "dodge", stat="identity") + labs(x = "\n Age", y=" Avg Number of Days Admitted\n", fill="Provider Flag")
 
 ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_point()
 
-ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_line()
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_line() 
 
 
 ```
@@ -280,7 +282,30 @@ inpatient_pd %>%
 ```
 
 ```{r}
+patient = read.csv('patient.csv')
 
+head(patient)
+```
+
+```{r}
+
+patient = patient %>%
+  mutate(Over65 = case_when(Age > 65 ~ "Yes",
+                            Age <= 65 ~ "No"))
+
+p = patient %>%
+  group_by(PotentialFraud, Over65) %>%
+  summarise(count=n())
+
+p %>%
+  group_by(PotentialFraud) %>%
+  mutate(Total=sum(count)) %>%
+  mutate(Prct = paste0( round(count/Total*100),"%" ) )
+
+```
+
+
+```{r}
 
 
 ```
