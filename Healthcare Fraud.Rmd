@@ -125,7 +125,9 @@ outpatient %>%
 
 
 ggplot(provider_dist, aes(x = type, y = perc, fill = f)) +
-  geom_col(position = "dodge") + labs(x = "\n", y="Percent Distribution\n", fill="Provider Flag")
+  geom_col(position = "dodge") + labs(x = "\n", y="Percent Distribution\n", fill="Provider Flag") + scale_fill_manual(values=c("Fraud" = "#F67F12",
+                             "Not Fraud" = "#1f77b4")) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 head(provider_dist)
 ```
