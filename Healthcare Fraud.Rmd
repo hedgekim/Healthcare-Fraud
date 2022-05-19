@@ -379,14 +379,44 @@ ggplot(bene_chronic, aes(x=total_chronic, y=InscClaimAmtReimbursed, fill=Potenti
 
 ```{r}
 ip_patient_chronic= read.csv('ip_patient_chronic.csv')
+op_patient_chronic= read.csv('op_patient_chronic.csv')
 ```
 
 ```{r}
 ip_patient_chronic$total_chronic = factor(ip_patient_chronic$total_chronic)
-head(ip_patient_chronic)
+op_patient_chronic$total_chronic = factor(op_patient_chronic$total_chronic)
+
+```
+
+```{r}
+dim(op_patient_chronic)
+```
+
+
+```{r}
+
+ggplot(ip_patient_chronic, aes(x=total_chronic, y=InscClaimAmtReimbursed, fill=PotentialFraud)) + geom_boxplot()
+
+ggplot(op_patient_chronic, aes(x=total_chronic, y=InscClaimAmtReimbursed, fill=PotentialFraud)) + geom_boxplot()
 
 ```
 ```{r}
+ip_patient_chronic_avg = read.csv('ip_patient_chronic_avg.csv')
+op_patient_chronic_avg = read.csv('op_patient_chronic_avg.csv')
 
 ```
+
+```{r}
+ip_patient_chronic_avg$total_chronic = factor(ip_patient_chronic_avg$total_chronic)
+op_patient_chronic_avg$total_chronic = factor(op_patient_chronic_avg$total_chronic)
+
+
+ggplot(ip_patient_chronic_avg, aes(fill=PotentialFraud, y=InscClaimAmtReimbursed, x=total_chronic)) + 
+    geom_bar(position="dodge", stat="identity")
+
+ggplot(op_patient_chronic_avg, aes(fill=PotentialFraud, y=InscClaimAmtReimbursed, x=total_chronic)) + 
+    geom_bar(position="dodge", stat="identity")
+
+```
+
 
