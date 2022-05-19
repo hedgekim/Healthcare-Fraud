@@ -182,6 +182,7 @@ outpatient
 ```
 ```{r}
 
+
 bene$Gender = factor(bene$Gender)
 ggplot(data = bene, aes(x=total_chronic, color=Gender)) + geom_histogram(binwidth=1, fill="white", position="identity", alpha=.5) + labs(x = "\n Number of Chronic Illness", y=" Count\n", fill="Gender")
 
@@ -310,8 +311,44 @@ p %>%
 ```
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+inpatient = read.csv('chronic_claimamount.csv')
+```
+
 ```{r}
 
+```
+
+
+
+```{r}
+
+# create a data frame
+variety=rep(LETTERS[1:7], each=40)
+treatment=rep(c("high","low"),each=20)
+note=seq(1:280)+sample(1:150, 280, replace=T)
+data=data.frame(variety, treatment ,  note)
+ 
+# grouped boxplot
+ggplot(data, aes(x=variety, y=note, fill=treatment)) + 
+    geom_boxplot()
+
+
+head(data)
 
 ```
 
