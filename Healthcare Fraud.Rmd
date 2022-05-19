@@ -326,11 +326,16 @@ p %>%
 
 
 ```{r}
-inpatient = read.csv('chronic_claimamount.csv')
+chronic_claimamount = read.csv('chronic_claimamount.csv')
+chronic_claimamount$Total_Chronic = factor(chronic_claimamount$Total_Chronic)
 ```
 
 ```{r}
+ggplot(chronic_claimamount, aes(x=Total_Chronic, y=Total_Claims_Amount, fill=PotentialFraud)) + 
+    geom_boxplot()
 
+ggplot(chronic_claimamount, aes(x=PotentialFraud, y=Total_Claims_Amount)) + 
+    geom_boxplot()
 ```
 
 
@@ -349,6 +354,39 @@ ggplot(data, aes(x=variety, y=note, fill=treatment)) +
 
 
 head(data)
+
+```
+
+
+
+```{r}
+
+bene_chronic= read.csv('bene_chronic.csv')
+
+```
+
+
+```{r}
+bene_chronic$total_chronic = factor(bene_chronic$total_chronic)
+head(bene_chronic)
+```
+
+```{r}
+
+ggplot(bene_chronic, aes(x=total_chronic, y=InscClaimAmtReimbursed, fill=PotentialFraud)) + geom_boxplot()
+
+```
+
+```{r}
+ip_patient_chronic= read.csv('ip_patient_chronic.csv')
+```
+
+```{r}
+ip_patient_chronic$total_chronic = factor(ip_patient_chronic$total_chronic)
+head(ip_patient_chronic)
+
+```
+```{r}
 
 ```
 
