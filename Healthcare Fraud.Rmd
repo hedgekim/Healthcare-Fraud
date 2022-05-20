@@ -214,7 +214,6 @@ ggplot(data=inpatient, aes(x = InscClaimAmtReimbursed, colour = PotentialFraud))
   geom_density()
 
 
-inpatent
 
 ```
 
@@ -254,11 +253,14 @@ days_admitted_age
 
 ```{r}
 
-ggplot(data=days_admitted_age, aes(x=Age, y=Mean, fill=PotentialFraud)) + geom_bar(position = "dodge", stat="identity") + labs(x = "\n Age", y=" Avg Number of Days Admitted\n", fill="Provider Flag")
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, fill=PotentialFraud)) + geom_bar(position = "dodge", stat="identity") + labs(x = "\n Age", y=" Avg Number of Days Admitted\n", fill="Provider Flag") + scale_fill_manual(values=c("#1f77b4", "#F67F12")) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_point()
 
 ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_line() 
+
+ggplot(data=days_admitted_age, aes(x=Age, y=Mean, color=PotentialFraud)) + geom_boxplot() + scale_color_manual(values=c("#1f77b4", "#F67F12")) + labs(x = "\n Age", y="Avg Days Admitted\n") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
 
 
 ```
@@ -315,10 +317,39 @@ p %>%
 
 
 
+```{r}
+Days_Admitted_Medicare = read.csv('Days_Admitted_Medicare.csv')
+age_claim_duration = read.csv('age_claim_duration.csv')
+age_admitted = read.csv('age_admitted.csv')
+```
+
+```{r}
 
 
 
+ggplot(data=age_claim_duration, aes(x = Medicare_Age, y = Claim.Duration, fill = PotentialFraud)) + geom_col(position = "dodge") + labs(x = "\nMedicare Eligible (65+)", y="Avg # Claim Duration\n") + scale_fill_manual(values=c("#1f77b4","#F67F12")) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
+
+
+ggplot(data=age_admitted, aes(x = Medicare_Age, y = Days_Admitted, fill = PotentialFraud)) + geom_col(position = "dodge") + labs(x = "\nMedicare Eligible (65+)", y="Avg # Days Admitted\n") + scale_fill_manual(values=c("#1f77b4", "#F67F12")) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
+
+```
+
+
+```{r}
+head(Days_Admitted_Medicare)
+```
+
+```{r}
+
+
+ggplot(data=Days_Admitted_Medicare, aes(x=Medicare_Age, y=Days_Admitted, fill=PotentialFraud)) + geom_boxplot()
+
+
+ggplot(data=Days_Admitted_Medicare, aes(x=Medicare_Age, y=Claim.Duration, fill=PotentialFraud)) + geom_boxplot()
+
+
+```
 
 
 
@@ -414,7 +445,7 @@ op_patient_chronic_avg$total_chronic = factor(op_patient_chronic_avg$total_chron
 
 
 ggplot(ip_patient_chronic_avg, aes(fill=PotentialFraud, y=InscClaimAmtReimbursed, x=total_chronic)) + 
-    geom_bar(position="dodge", stat="identity")
+    geom_bar(position="dodge", stat="identity") + labs(x = "\n # of Chronic Conditions", y="Avg Claim $ Reimbursed\n", fill="Provider Flag") + scale_fill_manual(values=c("#1f77b4", "#F67F12")) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 ggplot(op_patient_chronic_avg, aes(fill=PotentialFraud, y=InscClaimAmtReimbursed, x=total_chronic)) + 
     geom_bar(position="dodge", stat="identity")
